@@ -13,21 +13,10 @@ from keras.models import Sequential
 import matplotlib.pyplot as plt
 
 
-num_train_img = 5216
-num_test_img = 624
 
-batch_size = 64
-
-def steps_per_epoch(batch_size):
-    return num_train_img // batch_size+1
-
-def val_steps(batch_size):
-    return num_test_img // batch_size+1
-
-
-def evaluate(model, train_set, test_set, steps_per_epoch=steps_per_epoch(batch_size), val_steps=val_steps(batch_size)):
+def evaluate(model, train_set, test_set):
     '''
-        Displays the Train/Test loss and accuracy scores, a classification report
+        Displays the Train/Test loss, precision and recall scores, a classification report
             and a confusion matrix
 
             Parameters:
@@ -36,14 +25,15 @@ def evaluate(model, train_set, test_set, steps_per_epoch=steps_per_epoch(batch_s
                     test_set (DirectoryIterator): the test data
 
     '''
-    train_eval = model.evaluate(train_set, steps=steps_per_epoch)
-    test_eval = model.evaluate(test_set, steps=val_steps)
+    train_eval = model.evaluate(train_set, steps=train_set.n//train_set.batch_size+1)
+    test_eval = model.evaluate(test_set, steps=test_set.n//test_set.batch_size+1)
 
     print(f'Train Loss: {train_eval[0]: .3f}, Train Accuracy: {train_eval[1]: .3f}')
     print(f'Test Loss: {test_eval[0]: .3f}, Test Accuracy: {test_eval[1]: .3f}')
 
     #Confution Matrix and Classification Report
-    Y_pred = np.round(model.predict_generator(test_set, val_steps))
+    test_set.reset()
+    Y_pred = np.round(model.predict_generator(test_set, test_set.n//test_set.batch_size+1))
     y_pred = Y_pred.tolist()
     cm = confusion_matrix(test_set.classes, y_pred)
     target_names = list(test_set.class_indices.keys())
@@ -56,3 +46,22 @@ def evaluate(model, train_set, test_set, steps_per_epoch=steps_per_epoch(batch_s
     print('Confusion Matrix')
     disp = ConfusionMatrixDisplay(cm,  display_labels=target_names)
     disp.plot(values_format = '')
+    
+
+def plot_history(history):
+    '''
+        Plots the history of a model
+
+            Parameters:
+                    history: the history of fitting a model to training data
+    '''
+    fig, ax = plt.subplots(1, 2, figsize=(10, 5))
+
+
+    for i, met in enumerate(['accuracy', 'loss']):
+        ax[i].plot(history.history[met])
+        ax[i].plot(history.history["val_" + met])
+        ax[i].set_title(f"Model {met.capitalize()}")
+        ax[i].set_xlabel("Epochs")
+        ax[i].set_ylabel(met.capitalize())
+        ax[i].legend(["Train", "Validation"])

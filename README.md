@@ -17,10 +17,10 @@ I used a DirectoryIterator to augment the training data. The data was trained on
 
 ## Results
 I was able to improve the basic model step-wise by adding data augmentation, class weights, reduced learning rate on plateau, dropout layers and using the RMSprop optimizer. In the end, the pretrained model gave the best results. It did pretty well on the test data dn very well on the small holdout validation set.
-<img src="test-confusionmx.png"/><img src="val-confusionmx.png"/>
+<img src="images/test-confusionmx.png"/><img src="images/val-confusionmx.png"/>
 
 It was much better at predicting the 'pneumonia' class than the 'normal' class.
-<img src="preds-scatter.png"/>
+<img src="images/preds-scatter.png"/>
 
 ## Conclusions & Future Directions
 This modeling project producted a decent model for predicting pneumonia infections using x-ray images. However, there are still many patients with pneumonia who would be missed, and quite a few normal patients who would be mis-diagnosed as well. More work would need to be done on this model to make it adequate for diagnosing patients. Additionally, including classes for origin of infection would be necessary for this model to be useful in a clinical setting.
